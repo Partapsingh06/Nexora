@@ -142,6 +142,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// robots.txt handler for backend
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send('User-agent: *\nDisallow: /admin/\nDisallow: /admin\nDisallow: /api/admin/\nDisallow: /api/admin\nAllow: /\n');
+});
+
+// Admin security: apply X-Robots-Tag noindex to admin APIs
+app.use('/api/admin', (req, res, next) => {
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  next();
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
