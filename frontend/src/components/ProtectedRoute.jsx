@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Loader2, ShieldAlert, ArrowLeft, Lock } from 'lucide-react';
@@ -6,6 +6,29 @@ import { Loader2, ShieldAlert, ArrowLeft, Lock } from 'lucide-react';
 const ProtectedRoute = ({ children, requireAdmin = false, requireSeller = false }) => {
   const { user, token, loading, isAdmin } = useAuth();
   const location = useLocation();
+
+  // Enforce noindex if this route requires admin access
+  useEffect(() => {
+    if (requireAdmin) {
+      let meta = document.querySelector('meta[name="robots"]');
+      const created = !meta;
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'robots';
+        document.head.appendChild(meta);
+      }
+      const prevContent = meta.content;
+      meta.content = 'noindex, nofollow, noarchive';
+
+      return () => {
+        if (created) {
+          meta.remove();
+        } else {
+          meta.content = prevContent || 'index, follow';
+        }
+      };
+    }
+  }, [requireAdmin]);
 
   if (loading) {
     return (

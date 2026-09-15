@@ -483,21 +483,13 @@ const Navbar = () => {
                 📲 Download App (Coming Soon)
               </Link>
 
-              {isAdmin ? (
+              {isAdmin && (
                 <Link
                   to="/admin"
                   onClick={() => setMobileMenuOpen(false)}
                   className="block py-2.5 text-purple-700 font-bold"
                 >
                   🛡️ Admin Dashboard
-                </Link>
-              ) : (
-                <Link
-                  to="/login?role=admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block py-2.5 text-purple-700 font-bold"
-                >
-                  🛡️ Admin Portal Login
                 </Link>
               )}
 

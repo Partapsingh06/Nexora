@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -29,6 +29,27 @@ const AdminLayout = () => {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Enforce noindex for Admin pages in search engines
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    const created = !meta;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'robots';
+      document.head.appendChild(meta);
+    }
+    const prevContent = meta.content;
+    meta.content = 'noindex, nofollow, noarchive';
+
+    return () => {
+      if (created) {
+        meta.remove();
+      } else {
+        meta.content = prevContent || 'index, follow';
+      }
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
