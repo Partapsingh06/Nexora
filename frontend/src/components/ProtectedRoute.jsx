@@ -55,7 +55,7 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireSeller = false 
   }
 
   // If route requires admin role and user is not admin
-  if (requireAdmin && !isAdmin) {
+  if (requireAdmin && (!isAdmin || user?.role !== 'admin')) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
         <div className="max-w-md w-full bg-white rounded-lg shadow-xl border border-gray-200 p-8 text-center space-y-5">

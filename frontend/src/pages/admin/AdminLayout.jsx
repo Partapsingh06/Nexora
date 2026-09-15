@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Package,
@@ -13,6 +13,7 @@ import {
   X,
   ShieldCheck,
   ChevronRight,
+  Loader2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -26,7 +27,7 @@ const navItems = [
 ];
 
 const AdminLayout = () => {
-  const { user, logout } = useAuth();
+  const { user, isAdmin, loading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -55,6 +56,20 @@ const AdminLayout = () => {
     logout();
     navigate('/login');
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+        <Loader2 className="w-10 h-10 text-nexora-blue animate-spin mb-3" />
+        <p className="text-gray-500 text-sm font-medium">Verifying administrator authorization...</p>
+      </div>
+    );
+  }
+
+  // Security guard: Non-admin users cannot access AdminLayout
+  if (!user || !isAdmin || user?.role !== 'admin') {
+    return <Navigate to="/login?role=admin" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">
