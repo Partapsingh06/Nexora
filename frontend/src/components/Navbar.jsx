@@ -17,8 +17,6 @@ import {
   TrendingUp,
   Download,
   Store,
-  Shield,
-  KeyRound,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -129,7 +127,7 @@ const Navbar = () => {
           {isAdmin && (
             <Link
               to="/admin"
-              className="flex items-center gap-1.5 bg-gradient-to-r from-purple-700 to-indigo-800 text-white font-black text-xs px-3 py-1.5 rounded shadow-sm hover:from-purple-800 hover:to-indigo-900 transition border border-purple-400/40 animate-pulse"
+              className="flex items-center gap-1.5 bg-gradient-to-r from-purple-700 to-indigo-800 text-white font-black text-xs px-3 py-1.5 rounded shadow-sm hover:from-purple-800 hover:to-indigo-900 transition border border-purple-400/40"
             >
               <ShieldCheck className="w-4 h-4 text-nexora-yellow" />
               <span>Admin Panel</span>
@@ -220,22 +218,12 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link
-                to="/login"
-                className="bg-white text-nexora-blue font-bold text-xs sm:text-sm px-5 py-1.5 rounded-sm hover:bg-gray-100 transition shadow-sm"
-              >
-                Login
-              </Link>
-              <Link
-                to="/login?role=admin"
-                className="flex items-center gap-1 text-xs font-bold bg-purple-900/80 hover:bg-purple-900 text-purple-100 px-3 py-1.5 rounded-sm border border-purple-400/30 transition shadow-xs"
-                title="Admin Control Login"
-              >
-                <Shield className="w-3.5 h-3.5 text-nexora-yellow" />
-                <span>Admin</span>
-              </Link>
-            </div>
+            <Link
+              to="/login"
+              className="bg-white text-nexora-blue font-bold text-xs sm:text-sm px-5 py-1.5 rounded-sm hover:bg-gray-100 transition shadow-sm"
+            >
+              Login
+            </Link>
           )}
 
           {/* Become a Seller */}
@@ -259,14 +247,6 @@ const Navbar = () => {
 
             {moreDropdownOpen && (
               <div className="absolute right-0 mt-2 w-52 bg-white rounded shadow-xl py-2 z-50 text-gray-800 border border-gray-100 animate-in fade-in slide-in-from-top-1 duration-150">
-                <Link
-                  to="/login?role=admin"
-                  onClick={() => setMoreDropdownOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-purple-800 hover:bg-purple-50 flex items-center gap-2"
-                >
-                  <ShieldCheck className="w-4 h-4 text-purple-600" /> Admin Portal Login
-                </Link>
-                <div className="border-t border-gray-100 my-1"></div>
                 <Link
                   to="/customer-care"
                   onClick={() => setMoreDropdownOpen(false)}
@@ -378,23 +358,17 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              <div className="flex gap-2">
+              <div>
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 text-center bg-nexora-blue text-white font-bold py-2 rounded text-xs shadow"
+                  className="block text-center bg-nexora-blue text-white font-bold py-2.5 rounded text-xs shadow"
                 >
                   Customer Sign In
                 </Link>
-                <Link
-                  to="/login?role=admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 text-center bg-purple-900 text-white font-bold py-2 rounded text-xs shadow"
-                >
-                  Admin Sign In
-                </Link>
               </div>
             )}
+
 
             <div className="divide-y divide-gray-100 text-sm font-semibold text-gray-700">
               <Link

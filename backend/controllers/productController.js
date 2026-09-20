@@ -12,8 +12,10 @@ const getProducts = async (req, res, next) => {
 
     const query = {};
 
-    // Only return active products for public users unless requested by admin
-    if (req.query.includeInactive !== 'true') {
+    // Only return active products for public users
+    // includeInactive is only honored if the request comes from an authenticated admin
+    const isAdmin = req.user && req.user.role === 'admin';
+    if (!(isAdmin && req.query.includeInactive === 'true')) {
       query.isActive = true;
     }
 

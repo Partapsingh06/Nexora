@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Eye,
   EyeOff,
@@ -9,18 +9,11 @@ import {
   ShoppingBag,
   ArrowRight,
   ShieldCheck,
-  Shield,
-  UserCheck,
   AlertCircle,
-  KeyRound,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
-  const [searchParams] = useSearchParams();
-  const initialIsAdmin = searchParams.get('role') === 'admin' || searchParams.get('admin') === 'true';
-
-  const [isAdminMode, setIsAdminMode] = useState(initialIsAdmin);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -32,28 +25,16 @@ const LoginPage = () => {
 
   const from = location.state?.from?.pathname || '/';
 
-  // Sync mode with query param if it changes
+  // If already authenticated, redirect to appropriate portal
   useEffect(() => {
-    if (searchParams.get('role') === 'admin' || searchParams.get('admin') === 'true') {
-      setIsAdminMode(true);
-    }
-  }, [searchParams]);
-
-  // If already authenticated and admin, redirect to admin
-  useEffect(() => {
-    if (user && isAdmin) {
-      if (isAdminMode || from === '/admin') {
+    if (user) {
+      if (isAdmin) {
         navigate('/admin', { replace: true });
+      } else {
+        navigate(from !== '/admin' ? from : '/', { replace: true });
       }
     }
-  }, [user, isAdmin, isAdminMode, navigate, from]);
-
-  const handleFillAdminDemo = () => {
-    setEmail('admin@nexora.com');
-    setPassword('Admin@123456');
-    setFormError('');
-    setAuthError(null);
-  };
+  }, [user, isAdmin, navigate, from]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,20 +50,10 @@ const LoginPage = () => {
     if (result.success) {
       const loggedUser = result.user;
 
-      if (isAdminMode) {
-        // Enforce admin role requirement for Admin Portal login
-        if (loggedUser.role !== 'admin') {
-          setFormError('Access Denied: This account does not have administrator privileges.');
-          return;
-        }
+      if (loggedUser.role === 'admin') {
         navigate('/admin', { replace: true });
       } else {
-        // Customer login mode
-        if (loggedUser.role === 'admin') {
-          navigate('/admin', { replace: true });
-        } else {
-          navigate(from !== '/admin' ? from : '/', { replace: true });
-        }
+        navigate(from && from !== '/admin' ? from : '/', { replace: true });
       }
     }
   };
@@ -92,30 +63,16 @@ const LoginPage = () => {
       <div className="max-w-4xl w-full bg-white rounded-lg shadow-xl overflow-hidden flex flex-col md:flex-row border border-gray-200">
         
         {/* Left Side Banner */}
-        <div
-          className={`md:w-2/5 p-8 text-white flex flex-col justify-between relative overflow-hidden transition-colors duration-300 ${
-            isAdminMode ? 'bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900' : 'bg-nexora-blue'
-          }`}
-        >
+        <div className="md:w-2/5 p-8 text-white flex flex-col justify-between relative overflow-hidden bg-nexora-blue">
           <div className="z-10">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded mb-4">
-              {isAdminMode ? (
-                <>
-                  <ShieldCheck className="w-3.5 h-3.5 text-purple-300" /> Admin Portal
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-3.5 h-3.5 text-nexora-yellow" /> Nexora Account
-                </>
-              )}
+              <ShoppingBag className="w-3.5 h-3.5 text-nexora-yellow" /> Nexora Account
             </span>
             <h2 className="text-3xl font-extrabold mb-3">
-              {isAdminMode ? 'Admin Control' : 'Login'}
+              Login
             </h2>
             <p className="text-blue-100 text-sm leading-relaxed">
-              {isAdminMode
-                ? 'Manage real-time catalog inventory, customer orders, shipment pipelines, revenue metrics, and user roles.'
-                : 'Get access to your Orders, Wishlist, Personalized Recommendations, and fast checkout.'}
+              Get access to your Orders, Wishlist, Personalized Recommendations, and fast checkout.
             </p>
           </div>
 
@@ -126,16 +83,6 @@ const LoginPage = () => {
               </p>
               <p>Protected by cryptographic token verification and database authorization.</p>
             </div>
-
-            {isAdminMode && (
-              <button
-                type="button"
-                onClick={handleFillAdminDemo}
-                className="w-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold py-2 px-3 rounded border border-white/20 transition flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <KeyRound className="w-3.5 h-3.5 text-nexora-yellow" /> Auto-fill Default Admin Credentials
-              </button>
-            )}
           </div>
 
           {/* Background Decorative Circles */}
@@ -146,48 +93,12 @@ const LoginPage = () => {
         {/* Right Side Form */}
         <div className="md:w-3/5 p-8 sm:p-10 flex flex-col justify-center">
           
-          {/* Account Type Selector Tabs */}
-          <div className="flex rounded-lg bg-gray-100 p-1 mb-6 border border-gray-200">
-            <button
-              type="button"
-              onClick={() => {
-                setIsAdminMode(false);
-                setFormError('');
-                setAuthError(null);
-              }}
-              className={`flex-1 py-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1.5 ${
-                !isAdminMode
-                  ? 'bg-white text-nexora-blue shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              <UserCheck className="w-3.5 h-3.5" /> Customer Login
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsAdminMode(true);
-                setFormError('');
-                setAuthError(null);
-              }}
-              className={`flex-1 py-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1.5 ${
-                isAdminMode
-                  ? 'bg-purple-900 text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5" /> Admin Portal
-            </button>
-          </div>
-
           <div className="mb-6">
             <h3 className="text-xl font-bold text-gray-900">
-              {isAdminMode ? 'Administrator Sign In' : 'Welcome back to Nexora'}
+              Welcome to Nexora
             </h3>
             <p className="text-sm text-gray-500 mt-1">
-              {isAdminMode
-                ? 'Enter your verified administrator credentials to access dashboard.'
-                : 'Please enter your email and password to sign in.'}
+              Please enter your registered email and password to sign in.
             </p>
           </div>
 
@@ -202,7 +113,7 @@ const LoginPage = () => {
             {/* Email Field */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                {isAdminMode ? 'Admin Email Address' : 'Email Address'}
+                Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -212,7 +123,7 @@ const LoginPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={isAdminMode ? 'admin@nexora.com' : 'Enter your email address'}
+                  placeholder="Enter your email address"
                   className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-300 rounded-md text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-nexora-blue focus:border-transparent transition"
                   required
                 />
@@ -242,6 +153,7 @@ const LoginPage = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -252,49 +164,31 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full text-white font-semibold py-3 rounded-md shadow-md transition duration-150 flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed ${
-                isAdminMode
-                  ? 'bg-purple-900 hover:bg-purple-950'
-                  : 'bg-nexora-orange hover:bg-orange-600'
-              }`}
+              className="w-full text-white font-semibold py-3 rounded-md shadow-md transition duration-150 flex items-center justify-center gap-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed bg-nexora-orange hover:bg-orange-600 cursor-pointer"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Verifying credentials...
+                  <Loader2 className="w-4 h-4 animate-spin" /> Signing In...
                 </>
               ) : (
                 <>
-                  {isAdminMode ? 'Access Admin Dashboard' : 'Sign In'}{' '}
-                  <ArrowRight className="w-4 h-4" />
+                  Sign In <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Switch to Register (for customers) */}
+          {/* Switch to Register */}
           <div className="mt-8 text-center border-t border-gray-100 pt-6">
-            {!isAdminMode ? (
-              <p className="text-sm text-gray-600">
-                New to Nexora?{' '}
-                <Link
-                  to="/register"
-                  className="font-bold text-nexora-blue hover:underline inline-flex items-center gap-0.5"
-                >
-                  Create an account
-                </Link>
-              </p>
-            ) : (
-              <p className="text-xs text-gray-500">
-                Customer account?{' '}
-                <button
-                  type="button"
-                  onClick={() => setIsAdminMode(false)}
-                  className="font-bold text-nexora-blue hover:underline inline-flex items-center gap-0.5"
-                >
-                  Switch to Customer Login
-                </button>
-              </p>
-            )}
+            <p className="text-sm text-gray-600">
+              New to Nexora?{' '}
+              <Link
+                to="/register"
+                className="font-bold text-nexora-blue hover:underline inline-flex items-center gap-0.5"
+              >
+                Create an account
+              </Link>
+            </p>
           </div>
         </div>
       </div>
@@ -303,3 +197,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

@@ -68,7 +68,7 @@ const AdminLayout = () => {
 
   // Security guard: Non-admin users cannot access AdminLayout
   if (!user || !isAdmin || user?.role !== 'admin') {
-    return <Navigate to="/login?role=admin" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (

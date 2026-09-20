@@ -46,6 +46,7 @@ const protect = async (req, res, next) => {
   }
 };
 
+// Middleware: requires admin role verified from DB (not just localStorage)
 const adminOnly = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
@@ -57,4 +58,16 @@ const adminOnly = (req, res, next) => {
   }
 };
 
-module.exports = { protect, adminOnly };
+// Middleware: requires seller or admin role
+const sellerOnly = (req, res, next) => {
+  if (req.user && (req.user.role === 'seller' || req.user.role === 'admin')) {
+    next();
+  } else {
+    res.status(403).json({
+      success: false,
+      message: 'Access denied: Seller account required',
+    });
+  }
+};
+
+module.exports = { protect, adminOnly, sellerOnly };

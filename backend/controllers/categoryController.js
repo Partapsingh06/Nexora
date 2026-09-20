@@ -7,7 +7,9 @@ const Product = require('../models/Product');
 const getCategories = async (req, res, next) => {
   try {
     const query = {};
-    if (req.query.includeInactive !== 'true') {
+    // Only admins may request inactive categories
+    const isAdmin = req.user && req.user.role === 'admin';
+    if (!(isAdmin && req.query.includeInactive === 'true')) {
       query.isActive = true;
     }
 
